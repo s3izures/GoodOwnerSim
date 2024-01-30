@@ -7,16 +7,19 @@ using namespace std;
 
 class WallBreaker
 {
+#define FIX_SPEED GetFrameTime() * 50
+
 public:
 	//------------VARIABLES
 	Vector2 screenSize = Vector2{ 800,450 };
 	bool gamePaused = false;
 	bool gameOver = false;
+	bool levelWin = false;
 
 
 	//Bricks
-	static const int brickRows = 15;
-	static const int brickCols = 15;
+	static const int brickRows = 6;
+	static const int brickCols = 10;
 	float brickHeight = 30;
 	float gap = 10;
 
@@ -37,14 +40,19 @@ public:
 	typedef struct Player {
 		Vector2 position;
 		Vector2 size;
+		int speed = 8;
 		int curLives;
 		int maxLives = 3;
-
+		
 		void Draw()
 		{
 			//Position assumes middle point, Recatangle draws from upper left corner
+			DrawRectangleRounded(getRect(), 0.3, 8, BLACK);
+		}
+		Rectangle getRect()
+		{
 			Rectangle rect = Rectangle{ position.x - size.x / 2, position.y - size.y / 2 ,size.x,size.y };
-			DrawRectangleRounded(rect, 0.3, 8, BLACK);
+			return rect;
 		}
 	} Player;
 
@@ -56,8 +64,7 @@ public:
 
 		void Draw()
 		{
-			Rectangle rect = Rectangle{ position.x - radius / 2, position.y - radius,(float)radius,(float)radius };
-			DrawRectangleRounded(rect, 1, 8, DARKBLUE);
+			DrawCircle(position.x, position.y, radius, DARKBLUE);
 		}
 	} Ball;
 
