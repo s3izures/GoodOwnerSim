@@ -16,11 +16,10 @@ public:
 	bool gameOver = false;
 	bool levelWin = false;
 
-
-	//Bricks
+		//Bricks
 	static const int brickRows = 6;
 	static const int brickCols = 10;
-	float brickHeight = 30;
+	float brickHeight = 10;
 	float gap = 10;
 
 	typedef struct Brick {
@@ -35,8 +34,7 @@ public:
 	vector<Brick> bricks;
 	Color rowColor[brickRows] = { RED,ORANGE,YELLOW,GREEN,BLUE,PURPLE };
 
-
-	//Player + Ball
+		//Player + Ball
 	typedef struct Player {
 		Vector2 position;
 		Vector2 size;
@@ -70,6 +68,7 @@ public:
 
 	Player player = { 0 };
 	Ball ball = { 0 };
+
 
 
 	//------------FUNCTIONS

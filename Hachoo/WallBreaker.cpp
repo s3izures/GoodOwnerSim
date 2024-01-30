@@ -17,6 +17,9 @@ void WallBreaker::Main()
 
 void WallBreaker::Start()
 {
+	//Generate Level
+	
+
 	//Make stuff
 	MakeBricks();
 	MakePlayer();
