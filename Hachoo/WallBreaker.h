@@ -17,14 +17,25 @@ public:
 	bool levelWin = false;
 
 		//Bricks
-	static const int brickRows = 6;
-	static const int brickCols = 10;
-	float brickHeight = 10;
+	int brickRows = 6;
+	int brickCols = 10;
+	float brickHeight = 20;
 	float gap = 10;
 
 	typedef struct Brick {
 		Color color;
+
+		//Collisions
 		Rectangle rect;
+		Rectangle leftUCorner;
+		Rectangle rightUCorner;
+		Rectangle leftBCorner;
+		Rectangle rightBCorner;
+		Rectangle rightSide;
+		Rectangle leftSide;
+		Rectangle topSide;
+		Rectangle bottomSide;
+
 		void Draw()
 		{
 			DrawRectangleRounded(rect, 0.5, 12, color);
@@ -32,7 +43,7 @@ public:
 	}Brick;
 
 	vector<Brick> bricks;
-	Color rowColor[brickRows] = { RED,ORANGE,YELLOW,GREEN,BLUE,PURPLE };
+	vector<Color> brickColor;
 
 		//Player + Ball
 	typedef struct Player {
@@ -79,6 +90,7 @@ public:
 	void Update();
 
 	//EXTRA FUNCTIONS
+	void GenerateLevel();
 	void MakeBricks();
 	void MakePlayer();
 	void MakeBall();
