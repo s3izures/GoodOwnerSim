@@ -33,11 +33,7 @@ void WallBreaker::EvalCurFrame()
 	//Game Over and Paused
 	if (gameOver)
 	{
-		if (IsKeyPressed(KEY_ENTER))
-		{
-			Start();
-			gameOver = false;
-		}
+		Restart();
 		return;
 	}
 	if (IsKeyPressed(KEY_P))
@@ -74,103 +70,25 @@ void WallBreaker::EvalCurFrame()
 		player.position.x += player.speed * FIX_SPEED;
 	}
 
-	//BALL collision
-	for (int i = 0; i < bricks.size(); i++)
-	{
-		if (CheckCollisionCircleRec(ball.position, ball.radius, bricks[i].rect))
-		{
-			bricks.erase(bricks.begin() + i);
-			ball.speed.y *= -1;
-			break;
-		}
-
-		/*2- Develop a CircleToRoundRectangleCollision to detect the collision that happens
-		with the corners of the bricks
-
-
-		3- Depending on where the collision happens with the bricks, come up with a direction
-		that will affect the x and y of the ball's speed*/
-
-		// BROKEN ATM!
-		////Check Corners
-		//if (CheckCollisionCircleRec(ball.position, ball.radius, bricks[i].rightUCorner)
-		//	|| CheckCollisionCircleRec(ball.position, ball.radius, bricks[i].leftUCorner)
-		//	|| CheckCollisionCircleRec(ball.position, ball.radius, bricks[i].rightBCorner)
-		//	|| CheckCollisionCircleRec(ball.position, ball.radius, bricks[i].leftBCorner))
-		//{
-		//	////Delete brick
-		//	//bricks.erase(bricks.begin() + i);
-
-		//	//Reverse ball
-		//	//FIX LOGIC HERE
-		//	ball.speed.y *= -1;
-
-		//	break;
-		//}
-		////Check x
-		//else if (CheckCollisionCircleRec(ball.position, ball.radius, bricks[i].leftSide)
-		//	|| CheckCollisionCircleRec(ball.position, ball.radius, bricks[i].rightSide))
-		//{
-		//	////Delete brick
-		//	//bricks.erase(bricks.begin() + i);
-
-		//	//Reverse ball
-		//	ball.speed.y *= -1;
-
-		//	break;
-		//}
-		////Check y
-		//else if (CheckCollisionCircleRec(ball.position, ball.radius, bricks[i].topSide)
-		//	|| CheckCollisionCircleRec(ball.position, ball.radius, bricks[i].bottomSide))
-		//{
-		//	//Delete brick
-		//	bricks.erase(bricks.begin() + i);
-
-		//	//Reverse ball
-		//	ball.speed.y *= -1;
-
-		//	break;
-		//}
-	}
-
-	//Wall collision
-	if (ball.position.y <= 0 + ball.radius) //Top screen
-	{
-		//Reverse ball
-		ball.speed.y *= -1;
-	}
-	if (ball.position.x <= 0 + ball.radius || ball.position.x >= GetScreenWidth() - ball.radius) //Side screen
-	{
-		//Reverse ball
-		ball.speed.x *= -1;
-	}
-	if (ball.position.y >= GetScreenHeight() + 20) //Bottom screen
-	{
-		player.curLives--;
-		ball.active = false;
-		ball.speed = { 0,-5 };
-	}
-
-	//Paddle collision
-	if (CheckCollisionCircleRec(ball.position, ball.radius, player.getRect()))
-	{
-		ball.speed.y *= -1;
-		ball.speed.x = (ball.position.x - player.position.x) / (player.size.x / 10);
-	}
+	//Collisions
+	CollisionPaddle();
+	CollisionWalls();
+	CollisionBall();
 
 	//LOSS/WIN
-	if (player.curLives <= 0)
+	if (player.curLives == 0)
 	{
 		gameOver = true;
-		bricks.clear();
 	}
 	else
 	{
-		if (bricks.size() <= 0)
+		if (bricks.size() == 0)
 		{
 			levelWin = true;
 		}
 	}
+
+	ball.prevPosition = ball.position;
 }
 
 void WallBreaker::DrawCurFrame()
@@ -198,6 +116,7 @@ void WallBreaker::DrawCurFrame()
 		for (Brick b : bricks)
 		{
 			b.Draw();
+			b.DrawCollider();
 		}
 		player.Draw();
 		ball.Draw();
@@ -218,6 +137,16 @@ void WallBreaker::Update()
 {
 	EvalCurFrame();
 	DrawCurFrame();
+}
+
+void WallBreaker::Restart()
+{
+	if (IsKeyPressed(KEY_ENTER))
+	{
+		bricks.clear();
+		Start();
+		gameOver = false;
+	}
 }
 
 void WallBreaker::GenerateLevel()
@@ -266,29 +195,6 @@ void WallBreaker::MakeBricks()
 			Rectangle brick = Rectangle{ x,y,brickSize.x,brickSize.y };
 			Brick brickk;
 
-			//Collisions
-			//Corners
-			//float coliSize = 10;
-			//Rectangle cLT = Rectangle{ x - 1,y - 1,coliSize,coliSize };
-			//Rectangle cRT = Rectangle{ x + brickSize.x - coliSize + 1,y - 1,coliSize,coliSize };
-			//Rectangle cLB = Rectangle{ x - 1,y + brickSize.y - coliSize + 1,coliSize,coliSize };
-			//Rectangle cRB = Rectangle{ x + brickSize.x - coliSize + 1,y + brickSize.y - coliSize + 1,coliSize,coliSize };
-			//brickk.leftUCorner = cLT;
-			//brickk.rightUCorner = cRT;
-			//brickk.leftBCorner = cLB;
-			//brickk.rightBCorner = cRB;
-
-			////Sides
-			//Rectangle sL = Rectangle{ x,y,coliSize,brickSize.y };
-			//Rectangle sR = Rectangle{ x+brickSize.x-coliSize,y+brickSize.y-coliSize,coliSize,brickSize.y };
-			//brickk.leftSide = sL;
-			//brickk.rightSide = sR;
-
-			//Rectangle sT = Rectangle{ x,y,brickSize.x,coliSize};
-			//Rectangle sB = Rectangle{ x,y + brickSize.y - coliSize,brickSize.x,coliSize};
-			//brickk.topSide = sT;
-			//brickk.bottomSide = sB;
-			
 			//Color pattern
 			if (pattern == 0) //By Row
 			{
@@ -305,8 +211,20 @@ void WallBreaker::MakeBricks()
 			else if (pattern == 3) //Absolute Chaos
 			{
 				int max = rand() % brickColor.size();
-				brickk = Brick{ brickColor[max], brick};
+				brickk = Brick{ brickColor[max], brick };
 			}
+
+			//Collisions
+			int hitboxSize = 10;
+			brickk.hitboxes[tLCorn] = Rectangle{ x,y,brickSize.x / hitboxSize,brickSize.y / hitboxSize };
+			brickk.hitboxes[bLCorn] = Rectangle{ x,y + brickSize.y - (brickSize.y / hitboxSize),brickSize.x / hitboxSize,brickSize.y / hitboxSize };
+			brickk.hitboxes[tRCorn] = Rectangle{ x + brickSize.x - (brickSize.x / hitboxSize), y,brickSize.x / hitboxSize,brickSize.y / hitboxSize };
+			brickk.hitboxes[bRCorn] = Rectangle{ x + brickSize.x - (brickSize.x / hitboxSize), y + brickSize.y - (brickSize.y / hitboxSize),brickSize.x / hitboxSize,brickSize.y / hitboxSize };
+
+			brickk.hitboxes[top] = Rectangle{ x + brickSize.x / (hitboxSize - 1), y - (brickSize.y / (hitboxSize - 1)),brickSize.x - float(brickSize.x / 4.5),1 };
+			brickk.hitboxes[bottom] = Rectangle{ x + brickSize.x / (hitboxSize - 1), y + brickSize.y + (brickSize.y / (hitboxSize - 1)),brickSize.x - float(brickSize.x / 4.5),1 };
+			brickk.hitboxes[left] = Rectangle{ x, y + (brickSize.y / (hitboxSize - 1)), 1, brickSize.y - float(brickSize.y / 4.5) };
+			brickk.hitboxes[right] = Rectangle{ x + brickSize.x, y + (brickSize.y / (hitboxSize - 1)), 1, brickSize.y - float(brickSize.y / 4.5) };
 
 			bricks.push_back(brickk);
 		}
@@ -325,4 +243,139 @@ void WallBreaker::MakeBall()
 	ball.position = Vector2{ player.position.x,player.position.y - 30 };
 	ball.speed = Vector2{ 0,-5 };
 	ball.radius = 10;
+}
+
+void WallBreaker::CollisionPaddle()
+{
+	if (CheckCollisionCircleRec(ball.position, ball.radius, player.getRect()))
+	{
+		ball.speed.y *= -1;
+		ball.speed.x = (ball.position.x - player.position.x) / (player.size.x / 10);
+	}
+}
+
+void WallBreaker::CollisionWalls()
+{
+	if (ball.position.y <= 0 + ball.radius) //Top screen
+	{
+		//Reverse ball
+		ball.speed.y *= -1;
+	}
+	if (ball.position.x <= 0 + ball.radius || ball.position.x >= GetScreenWidth() - ball.radius) //Side screen
+	{
+		//Reverse ball
+		ball.speed.x *= -1;
+	}
+	if (ball.position.y >= GetScreenHeight() + 20) //Bottom screen
+	{
+		player.curLives--;
+		ball.active = false;
+		ball.speed = { 0,-5 };
+	}
+}
+
+void WallBreaker::CollisionBall()
+{
+	for (int i = 0; i < bricks.size(); i++)
+	{
+		if (CheckCollisionCircleRec(ball.position, ball.radius, bricks[i].rect))
+		{
+			/*SpawnLife(Vector2{ bricks[i].rect.x, bricks[i].rect.y });*/
+			int scenario = CollisionWithHitBox(bricks[i]);
+
+			Vector2 hitBoxesPositions[8];
+			for (int j = 0; j != end; j++)
+			{
+				hitBoxesPositions[j].x = bricks[i].hitboxes[j].x;
+				hitBoxesPositions[j].y = bricks[i].hitboxes[j].y;
+			}
+
+			// delete the brick
+			bricks.erase(bricks.begin() + i);
+
+			/*Default*/
+			//ball.speed.y *= -1;
+
+			switch (scenario)
+			{
+			case tLCorn:
+				if (ball.prevPosition.x < hitBoxesPositions[tLCorn].x)
+				{
+					ball.speed.x *= -1;
+				}
+
+				if (ball.prevPosition.y < hitBoxesPositions[tLCorn].y)
+					ball.speed.y *= -1;
+
+				break;
+
+			case tRCorn:
+				if (ball.prevPosition.x > hitBoxesPositions[tRCorn].x)
+				{
+					ball.speed.x *= -1;
+				}
+
+				if (ball.prevPosition.y < hitBoxesPositions[tRCorn].y)
+					ball.speed.y *= -1;
+
+				break;
+
+			case bLCorn:
+				if (ball.prevPosition.x < hitBoxesPositions[bLCorn].x)
+				{
+					ball.speed.x *= -1;
+				}
+
+				if (ball.prevPosition.y > hitBoxesPositions[bLCorn].y)
+					ball.speed.y *= -1;
+
+				break;
+
+			case bRCorn:
+				if (ball.prevPosition.x > hitBoxesPositions[bRCorn].x)
+				{
+					ball.speed.x *= -1;
+				}
+
+				if (ball.prevPosition.y > hitBoxesPositions[bRCorn].y)
+					ball.speed.y *= -1;
+
+				break;
+
+			case top:
+				ball.speed.y *= -1;
+				break;
+
+			case bottom:
+				ball.speed.y *= -1;
+				break;
+
+			case left:
+				ball.speed.x *= -1;
+				break;
+
+			case right:
+				ball.speed.x *= -1;
+				break;
+
+			default:
+				break;
+			}
+
+			break;		
+		}
+
+
+	}
+}
+
+int WallBreaker::CollisionWithHitBox(Brick brick)
+{
+	for (int i = 0; i != end; i++)
+	{
+		if (CheckCollisionCircleRec(ball.position, ball.radius, brick.hitboxes[i]))
+		{
+			return i;
+		}
+	}
 }

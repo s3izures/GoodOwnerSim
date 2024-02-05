@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include <vector>
 using namespace std;
+
 #ifndef WALLBREAKER_H
 #define WALLBREAKER_H
 
@@ -16,36 +17,55 @@ public:
 	bool gameOver = false;
 	bool levelWin = false;
 
-		//Bricks
+	//Bricks
 	int brickRows = 6;
 	int brickCols = 10;
-	float brickHeight = 20;
-	float gap = 10;
+	float brickHeight = 24;
+	float gap = 8;
 
 	typedef struct Brick {
 		Color color;
 
 		//Collisions
 		Rectangle rect;
-		Rectangle leftUCorner;
-		Rectangle rightUCorner;
-		Rectangle leftBCorner;
-		Rectangle rightBCorner;
-		Rectangle rightSide;
-		Rectangle leftSide;
-		Rectangle topSide;
-		Rectangle bottomSide;
+		Rectangle hitboxes[8];
 
 		void Draw()
 		{
 			DrawRectangleRounded(rect, 0.5, 12, color);
+		}
+		void DrawCollider()
+		{
+			for (int i = 0; i < 8; i++)
+			{
+				if (i < 4 || i > 5)
+				{
+					DrawRectangleRec(hitboxes[i], Color{ 255,255,255,200 });
+				}
+				else
+				{
+					DrawRectangleRec(hitboxes[i], Color{ 0,0,0,0 });
+				}
+			}
 		}
 	}Brick;
 
 	vector<Brick> bricks;
 	vector<Color> brickColor;
 
-		//Player + Ball
+	enum BoxSides {
+		tLCorn,
+		tRCorn,
+		bLCorn,
+		bRCorn,
+		top,
+		bottom,
+		left,
+		right,
+		end
+	};
+
+	//Player + Ball
 	typedef struct Player {
 		Vector2 position;
 		Vector2 size;
@@ -67,6 +87,7 @@ public:
 
 	typedef struct Ball {
 		Vector2 position;
+		Vector2 prevPosition;
 		Vector2 speed;
 		int radius;
 		bool active = false;
@@ -81,6 +102,22 @@ public:
 	Ball ball = { 0 };
 
 
+	//Pickups
+	typedef struct Pickup {
+		Vector2 position;
+		Vector2 speed;
+		int radius;
+		Color color;
+
+		void Draw() 
+		{ 
+			DrawCircle(position.x, position.y, radius, color); 
+		}
+	} PickUp;
+
+	vector<Pickup> pickups;
+
+
 
 	//------------FUNCTIONS
 	void Main();
@@ -90,10 +127,17 @@ public:
 	void Update();
 
 	//EXTRA FUNCTIONS
+	void Restart();
 	void GenerateLevel();
+
 	void MakeBricks();
 	void MakePlayer();
 	void MakeBall();
+
+	void CollisionPaddle();
+	void CollisionWalls();
+	void CollisionBall();
+	int CollisionWithHitBox(Brick brick);
 };
 
 #endif
