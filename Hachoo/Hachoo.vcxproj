@@ -104,12 +104,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\School\Winter 2024\Wallbreaker\Libraries\raylib-5.0_win64_msvc16\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Libraries\raylib-5.0_win64_msvc16\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\School\Winter 2024\Wallbreaker\Libraries\raylib-5.0_win64_msvc16\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>Libraries\raylib-5.0_win64_msvc16\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>raylib.lib;winmm.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -134,7 +134,15 @@
     <ClCompile Include="WallBreaker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Libraries\raylib-5.0_win64_msvc16\include\raylib.h" />
+    <ClInclude Include="Libraries\raylib-5.0_win64_msvc16\include\raymath.h" />
+    <ClInclude Include="Libraries\raylib-5.0_win64_msvc16\include\rlgl.h" />
     <ClInclude Include="WallBreaker.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Resource Files\beep-a.wav" />
+    <Media Include="Resource Files\beep-b.wav" />
+    <Media Include="Resource Files\beep-c.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -17,6 +17,8 @@ public:
 	bool gameOver = false;
 	bool levelWin = false;
 
+	vector<Sound>soundEffects;
+
 	//Bricks
 	int brickRows = 6;
 	int brickCols = 10;
@@ -127,6 +129,7 @@ public:
 	void Update();
 
 	//EXTRA FUNCTIONS
+	void LoadAudio();
 	void Restart();
 	void GenerateLevel();
 
@@ -139,6 +142,4 @@ public:
 	void CollisionBall();
 	int CollisionWithHitBox(Brick brick);
 };
-
 #endif
-

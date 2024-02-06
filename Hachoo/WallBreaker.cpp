@@ -8,17 +8,29 @@ using namespace std;
 void WallBreaker::Main()
 {
 	InitWindow(screenSize.x, screenSize.y, "Wallbreaker");
+
+	InitAudioDevice();
+	LoadAudio();
+
 	Start();
 	SetTargetFPS(120);
 	while(!WindowShouldClose())
 	{
 		Update();
 	}
+	
+	for (int i = 0; i < soundEffects.size(); i++)
+	{
+		UnloadSound(soundEffects[i]);
+	}
+	CloseAudioDevice();
+
 	CloseWindow();
 }
 
 void WallBreaker::Start()
 {
+
 	//Generate Level
 	GenerateLevel();
 
@@ -78,12 +90,14 @@ void WallBreaker::EvalCurFrame()
 	//LOSS/WIN
 	if (player.curLives == 0)
 	{
+		PlaySound(soundEffects[5]);
 		gameOver = true;
 	}
 	else
 	{
 		if (bricks.size() == 0)
 		{
+			PlaySound(soundEffects[4]);
 			levelWin = true;
 		}
 	}
@@ -137,6 +151,23 @@ void WallBreaker::Update()
 {
 	EvalCurFrame();
 	DrawCurFrame();
+}
+
+void WallBreaker::LoadAudio()
+{
+	Sound launchSFX = LoadSound("Resources\\beepa.wav");
+	Sound hitSFX = LoadSound("Resources\\beepb.wav");
+	Sound dieSFX = LoadSound("Resources\\beepc.wav");
+	Sound powerupSFX = LoadSound("Resources\\powerup.wav");
+	Sound winSFX = LoadSound("Resources\\win.wav");
+	Sound loseSFX = LoadSound("Resources\\fail.wav");
+
+	soundEffects.push_back(launchSFX); //0
+	soundEffects.push_back(hitSFX); //1
+	soundEffects.push_back(dieSFX); //2
+	soundEffects.push_back(powerupSFX); //3
+	soundEffects.push_back(winSFX); //4
+	soundEffects.push_back(loseSFX); //5
 }
 
 void WallBreaker::Restart()
@@ -249,6 +280,7 @@ void WallBreaker::CollisionPaddle()
 {
 	if (CheckCollisionCircleRec(ball.position, ball.radius, player.getRect()))
 	{
+		PlaySound(soundEffects[0]);
 		ball.speed.y *= -1;
 		ball.speed.x = (ball.position.x - player.position.x) / (player.size.x / 10);
 	}
@@ -258,16 +290,19 @@ void WallBreaker::CollisionWalls()
 {
 	if (ball.position.y <= 0 + ball.radius) //Top screen
 	{
+		PlaySound(soundEffects[0]);
 		//Reverse ball
 		ball.speed.y *= -1;
 	}
 	if (ball.position.x <= 0 + ball.radius || ball.position.x >= GetScreenWidth() - ball.radius) //Side screen
 	{
+		PlaySound(soundEffects[0]);
 		//Reverse ball
 		ball.speed.x *= -1;
 	}
 	if (ball.position.y >= GetScreenHeight() + 20) //Bottom screen
 	{
+		PlaySound(soundEffects[2]);
 		player.curLives--;
 		ball.active = false;
 		ball.speed = { 0,-5 };
@@ -292,6 +327,8 @@ void WallBreaker::CollisionBall()
 
 			// delete the brick
 			bricks.erase(bricks.begin() + i);
+
+			PlaySound(soundEffects[1]);
 
 			/*Default*/
 			//ball.speed.y *= -1;
