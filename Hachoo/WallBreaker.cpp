@@ -3,7 +3,10 @@
 #include <vector>
 #include <stdlib.h>
 #include <time.h>
+#include <iostream>
 using namespace std;
+
+//Pickups are broken, like my heart (vector out of range error)
 
 #pragma region BASIC_FUNCTIONS
 void WallBreaker::Main()
@@ -38,15 +41,19 @@ void WallBreaker::Start()
 	MakeBricks();
 	MakePlayer();
 	MakeBall();
+	MakePickup();
 
 	//Play moosic
-	PlaySound(soundEffects[6]);
+	if (IsSoundReady(soundEffects[6]))
+	{
+		PlaySound(soundEffects[6]);
+	}
 }
 
 void WallBreaker::EvalCurFrame()
 {
 	//Game Over and Paused
-	if (gameOver)
+	if (gameOver || levelWin)
 	{
 		for (int i = 0; i < soundEffects.size(); i++)
 		{
@@ -55,6 +62,7 @@ void WallBreaker::EvalCurFrame()
 		Restart();
 		return;
 	}
+
 	if (IsKeyPressed(KEY_P))
 	{
 		PlaySound(soundEffects[7]);
@@ -88,6 +96,17 @@ void WallBreaker::EvalCurFrame()
 		ball.position.y += ball.speed.y * FIX_SPEED;
 	}
 
+	if (ball.ballPower != noPower)
+	{
+		ball.color = pickups[ball.ballPower - 1].color;
+	}
+
+	//Pickups
+	for (int i = 0; i < activePickups.size() ;i++)
+	{
+		activePickups[i].position.y += activePickups[i].speed.y * FIX_SPEED;
+	}
+
 	//Player controls
 	if (IsKeyDown(KEY_LEFT) && player.position.x - (player.size.x/2) > 0 )
 	{
@@ -102,6 +121,7 @@ void WallBreaker::EvalCurFrame()
 	CollisionPaddle();
 	CollisionWalls();
 	CollisionBall();
+	CollisionPickup();
 
 	//LOSS/WIN
 	if (player.curLives == 0)
@@ -145,9 +165,13 @@ void WallBreaker::DrawCurFrame()
 	{
 		//Draw lives
 		DrawText("LIVES", 20, GetScreenHeight() - 20 - 20, 18, BLACK);
-		for (int i = 0; i < player.maxLives; i++)
+		for (int i = 0; i < player.curLives; i++)
 		{
-			if (i < player.curLives)
+			if (i >= player.maxLives)
+			{
+				DrawRectangle(20 + 20 * i, GetScreenHeight() - 20, 10, 10, GOLD);
+			}
+			else if (i <= player.curLives)
 			{
 				DrawRectangle(20 + 20 * i, GetScreenHeight() - 20, 10, 10, DARKBLUE);
 			}
@@ -165,6 +189,10 @@ void WallBreaker::DrawCurFrame()
 		}
 		player.Draw();
 		ball.Draw();
+		for (Pickup p : activePickups)
+		{
+			p.Draw();
+		}
 	}
 	else if (levelWin)
 	{
@@ -217,8 +245,11 @@ void WallBreaker::Restart()
 	if (IsKeyPressed(KEY_ENTER))
 	{
 		bricks.clear();
+		activePickups.clear();
 		Start();
 		gameOver = false;
+		levelWin = false;
+		ball.active = false;
 	}
 }
 
@@ -320,6 +351,30 @@ void WallBreaker::MakeBall()
 	ball.radius = 10;
 	ball.color = DARKBLUE; //Default
 }
+
+void WallBreaker::MakePickup()
+{
+	//Create ALL pickups
+	for (int i = 1; i != powerEnd; i++)
+	{
+		Pickup pickupuwu;
+		pickupuwu.speed = { 0,3 };
+		pickupuwu.power = i;
+		pickupuwu.radius = 8;
+		pickupuwu.position = { 0,0 };
+		if (i == 1)
+			pickupuwu.color = GREEN;
+		else if (i == 2)
+			pickupuwu.color = RED;
+		else if (i == 3)
+			pickupuwu.color = SKYBLUE;
+		else if (i == 4)
+			pickupuwu.color = BLACK;
+		else
+			pickupuwu.color = DARKBLUE;
+		pickups.push_back(pickupuwu);
+	}
+}
 #pragma endregion
 
 #pragma region COLLISION
@@ -353,6 +408,8 @@ void WallBreaker::CollisionWalls()
 		player.curLives--;
 		ball.active = false;
 		ball.speed = { 0,-5 };
+		ball.ballPower = noPower;
+		ball.color = DARKBLUE;
 	}
 }
 
@@ -362,7 +419,6 @@ void WallBreaker::CollisionBall()
 	{
 		if (CheckCollisionCircleRec(ball.position, ball.radius, bricks[i].rect))
 		{
-			/*SpawnLife(Vector2{ bricks[i].rect.x, bricks[i].rect.y });*/
 			int scenario = CollisionWithHitBox(bricks[i]);
 
 			Vector2 hitBoxesPositions[8];
@@ -372,84 +428,128 @@ void WallBreaker::CollisionBall()
 				hitBoxesPositions[j].y = bricks[i].hitboxes[j].y;
 			}
 
+			//PICKUPS
+			if (rand() % 10 > 5)
+			{
+				int powerDrop = rand() % pickups.size(); //bc only 4 powerups in vector
+				pickups[powerDrop].position.x = bricks[i].rect.x;
+				pickups[powerDrop].position.y = bricks[i].rect.y;
+				activePickups.push_back(pickups[powerDrop]);
+			}
+
 			// delete the brick
 			bricks.erase(bricks.begin() + i);
 
 			PlaySound(soundEffects[1]);
 
-			/*Default*/
-			//ball.speed.y *= -1;
-
-			switch (scenario)
+			if (ball.ballPower != ballBoom) //If no boom powerup (default case)
 			{
-			case tLCorn:
-				if (ball.prevPosition.x < hitBoxesPositions[tLCorn].x)
+				switch (scenario)
 				{
-					ball.speed.x *= -1;
-				}
+				case tLCorn:
+					if (ball.prevPosition.x < hitBoxesPositions[tLCorn].x)
+					{
+						ball.speed.x *= -1;
+					}
 
-				if (ball.prevPosition.y < hitBoxesPositions[tLCorn].y)
+					if (ball.prevPosition.y < hitBoxesPositions[tLCorn].y)
+						ball.speed.y *= -1;
+
+					break;
+
+				case tRCorn:
+					if (ball.prevPosition.x > hitBoxesPositions[tRCorn].x)
+					{
+						ball.speed.x *= -1;
+					}
+
+					if (ball.prevPosition.y < hitBoxesPositions[tRCorn].y)
+						ball.speed.y *= -1;
+
+					break;
+
+				case bLCorn:
+					if (ball.prevPosition.x < hitBoxesPositions[bLCorn].x)
+					{
+						ball.speed.x *= -1;
+					}
+
+					if (ball.prevPosition.y > hitBoxesPositions[bLCorn].y)
+						ball.speed.y *= -1;
+
+					break;
+
+				case bRCorn:
+					if (ball.prevPosition.x > hitBoxesPositions[bRCorn].x)
+					{
+						ball.speed.x *= -1;
+					}
+
+					if (ball.prevPosition.y > hitBoxesPositions[bRCorn].y)
+						ball.speed.y *= -1;
+
+					break;
+
+				case top:
 					ball.speed.y *= -1;
+					break;
 
-				break;
-
-			case tRCorn:
-				if (ball.prevPosition.x > hitBoxesPositions[tRCorn].x)
-				{
-					ball.speed.x *= -1;
-				}
-
-				if (ball.prevPosition.y < hitBoxesPositions[tRCorn].y)
+				case bottom:
 					ball.speed.y *= -1;
+					break;
 
-				break;
-
-			case bLCorn:
-				if (ball.prevPosition.x < hitBoxesPositions[bLCorn].x)
-				{
+				case left:
 					ball.speed.x *= -1;
-				}
+					break;
 
-				if (ball.prevPosition.y > hitBoxesPositions[bLCorn].y)
-					ball.speed.y *= -1;
-
-				break;
-
-			case bRCorn:
-				if (ball.prevPosition.x > hitBoxesPositions[bRCorn].x)
-				{
+				case right:
 					ball.speed.x *= -1;
-				}
+					break;
 
-				if (ball.prevPosition.y > hitBoxesPositions[bRCorn].y)
+				default:
 					ball.speed.y *= -1;
-
-				break;
-
-			case top:
-				ball.speed.y *= -1;
-				break;
-
-			case bottom:
-				ball.speed.y *= -1;
-				break;
-
-			case left:
-				ball.speed.x *= -1;
-				break;
-
-			case right:
-				ball.speed.x *= -1;
-				break;
-
-			default:
-				break;
+					break;
+				}
 			}
 
 			break;		
 		}
 
 
+	}
+}
+
+void WallBreaker::CollisionPickup()
+{
+	for (int i = 0; i < activePickups.size(); i++)
+	{
+		if (CheckCollisionCircleRec(activePickups[i].position, activePickups[i].radius,player.getRect()))
+		{
+			switch (activePickups[i].power)
+			{
+			case extraLife:
+				player.curLives++;
+				break;
+			case ballFast:
+				ball.ballPower = ballFast;
+				ball.speed.y *= 1.5;
+				break;
+			case ballSlow :
+				ball.ballPower = ballSlow;
+				ball.speed.y /= 1.5;
+				break;
+			case ballBoom:
+				ball.ballPower = ballBoom;
+				break;
+			}
+			activePickups.erase(activePickups.begin() + i);
+			break;
+		}
+		else if (activePickups[i].position.y >= GetScreenHeight() + 20) //Bottom screen
+		{
+			activePickups.erase(activePickups.begin() + i);
+			break;
+		}
 	}
 }
 

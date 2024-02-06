@@ -139,6 +139,16 @@
     <ClInclude Include="Libraries\raylib-5.0_win64_msvc16\include\rlgl.h" />
     <ClInclude Include="WallBreaker.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="Resources\beepa.wav" />
+    <Media Include="Resources\beepb.wav" />
+    <Media Include="Resources\beepc.wav" />
+    <Media Include="Resources\fail.wav" />
+    <Media Include="Resources\menu.wav" />
+    <Media Include="Resources\music.wav" />
+    <Media Include="Resources\powerup.wav" />
+    <Media Include="Resources\win.wav" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

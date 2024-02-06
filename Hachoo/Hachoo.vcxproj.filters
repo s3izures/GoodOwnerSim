@@ -9,7 +9,7 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
+    <Filter Include="Resources">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
@@ -27,13 +27,39 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Libraries\raylib-5.0_win64_msvc16\include\raylib.h">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="Libraries\raylib-5.0_win64_msvc16\include\raymath.h">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="Libraries\raylib-5.0_win64_msvc16\include\rlgl.h">
-      <Filter>Resource Files</Filter>
+      <Filter>Resources</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Resources\beepa.wav">
+      <Filter>Resources</Filter>
+    </Media>
+    <Media Include="Resources\beepb.wav">
+      <Filter>Resources</Filter>
+    </Media>
+    <Media Include="Resources\beepc.wav">
+      <Filter>Resources</Filter>
+    </Media>
+    <Media Include="Resources\fail.wav">
+      <Filter>Resources</Filter>
+    </Media>
+    <Media Include="Resources\menu.wav">
+      <Filter>Resources</Filter>
+    </Media>
+    <Media Include="Resources\music.wav">
+      <Filter>Resources</Filter>
+    </Media>
+    <Media Include="Resources\powerup.wav">
+      <Filter>Resources</Filter>
+    </Media>
+    <Media Include="Resources\win.wav">
+      <Filter>Resources</Filter>
+    </Media>
   </ItemGroup>
 </Project>

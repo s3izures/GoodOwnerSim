@@ -94,6 +94,7 @@ public:
 		Color color;
 		int radius;
 		bool active = false;
+		int ballPower = noPower;
 
 		void Draw()
 		{
@@ -121,14 +122,17 @@ public:
 
 	enum Powers
 	{
-		extraLife, //GREEN
-		ballFast, //RED +r
-		ballSlow, //BLUE +b
-		ballBoom, //BLACK =black
+		noPower,
+		extraLife, //LIME
+		ballFast, //RED
+		ballSlow, //SKYBLUE
+		ballBoom, //BLACK
+		powerEnd
 	};
 
 	//0: which brick is it in, 1: what kind of power it is
-	vector<Pickup> pickups[2];
+	vector<Pickup> pickups;
+	vector<Pickup> activePickups;
 
 
 
@@ -147,10 +151,12 @@ public:
 	void MakeBricks();
 	void MakePlayer();
 	void MakeBall();
+	void MakePickup();
 
 	void CollisionPaddle();
 	void CollisionWalls();
 	void CollisionBall();
+	void CollisionPickup();
 	int CollisionWithHitBox(Brick brick);
 };
 #endif
