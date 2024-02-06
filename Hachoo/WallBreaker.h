@@ -64,6 +64,7 @@ public:
 		bottom,
 		left,
 		right,
+		end
 	};
 
 	//Player + Ball
