@@ -11,7 +11,7 @@ void WallBreaker::Main()
 
 	InitAudioDevice();
 	LoadAudio();
-
+	
 	Start();
 	SetTargetFPS(120);
 	while(!WindowShouldClose())
@@ -30,7 +30,6 @@ void WallBreaker::Main()
 
 void WallBreaker::Start()
 {
-
 	//Generate Level
 	GenerateLevel();
 
@@ -38,6 +37,9 @@ void WallBreaker::Start()
 	MakeBricks();
 	MakePlayer();
 	MakeBall();
+
+	//Play moosic
+	PlaySound(soundEffects[6]);
 }
 
 void WallBreaker::EvalCurFrame()
@@ -45,12 +47,22 @@ void WallBreaker::EvalCurFrame()
 	//Game Over and Paused
 	if (gameOver)
 	{
+		StopSound(soundEffects[6]);
 		Restart();
 		return;
 	}
 	if (IsKeyPressed(KEY_P))
 	{
+		PlaySound(soundEffects[7]);
 		gamePaused = !gamePaused;
+		if (gamePaused)
+		{
+			PauseSound(soundEffects[6]);
+		}
+		else
+		{
+			ResumeSound(soundEffects[6]);
+		}
 	}
 	if (gamePaused)
 	{
@@ -158,9 +170,16 @@ void WallBreaker::LoadAudio()
 	Sound launchSFX = LoadSound("Resources\\beepa.wav");
 	Sound hitSFX = LoadSound("Resources\\beepb.wav");
 	Sound dieSFX = LoadSound("Resources\\beepc.wav");
+
+	SetSoundVolume(launchSFX, 0.5);
+	SetSoundVolume(hitSFX, 0.5);
+	SetSoundVolume(dieSFX, 0.5);
+
 	Sound powerupSFX = LoadSound("Resources\\powerup.wav");
 	Sound winSFX = LoadSound("Resources\\win.wav");
 	Sound loseSFX = LoadSound("Resources\\fail.wav");
+	Sound BGM = LoadSound("Resources\\music.wav");
+	Sound menuSFX = LoadSound("Resources\\menu.wav");
 
 	soundEffects.push_back(launchSFX); //0
 	soundEffects.push_back(hitSFX); //1
@@ -168,6 +187,8 @@ void WallBreaker::LoadAudio()
 	soundEffects.push_back(powerupSFX); //3
 	soundEffects.push_back(winSFX); //4
 	soundEffects.push_back(loseSFX); //5
+	soundEffects.push_back(BGM); //6
+	soundEffects.push_back(menuSFX); //7
 }
 
 void WallBreaker::Restart()
