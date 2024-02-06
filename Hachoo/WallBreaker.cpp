@@ -6,7 +6,8 @@
 #include <iostream>
 using namespace std;
 
-//Pickups are broken, like my heart (vector out of range error)
+//Grade: 13/15 because I didn't fix the paddle and the brick collision is a bit janky, but everything else should be working fine
+//There's randomized colors and preset palettes, along with a few pattern variations in the procedural level generation part.
 
 #pragma region BASIC_FUNCTIONS
 void WallBreaker::Main()
