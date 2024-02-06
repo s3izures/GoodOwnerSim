@@ -23,8 +23,8 @@ void WallBreaker::Main()
 	{
 		UnloadSound(soundEffects[i]);
 	}
-	CloseAudioDevice();
 
+	CloseAudioDevice();
 	CloseWindow();
 }
 
@@ -47,7 +47,10 @@ void WallBreaker::EvalCurFrame()
 	//Game Over and Paused
 	if (gameOver)
 	{
-		StopSound(soundEffects[6]);
+		for (int i = 0; i < soundEffects.size(); i++)
+		{
+			StopSound(soundEffects[i]);
+		}
 		Restart();
 		return;
 	}
@@ -102,6 +105,7 @@ void WallBreaker::EvalCurFrame()
 	//LOSS/WIN
 	if (player.curLives == 0)
 	{
+		StopSound(soundEffects[6]);
 		PlaySound(soundEffects[5]);
 		gameOver = true;
 	}
@@ -109,6 +113,7 @@ void WallBreaker::EvalCurFrame()
 	{
 		if (bricks.size() == 0)
 		{
+			StopSound(soundEffects[6]);
 			PlaySound(soundEffects[4]);
 			levelWin = true;
 		}

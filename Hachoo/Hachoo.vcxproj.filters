@@ -36,15 +36,4 @@
       <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <Media Include="Resource Files\beep-a.wav">
-      <Filter>Resource Files</Filter>
-    </Media>
-    <Media Include="Resource Files\beep-b.wav">
-      <Filter>Resource Files</Filter>
-    </Media>
-    <Media Include="Resource Files\beep-c.wav">
-      <Filter>Resource Files</Filter>
-    </Media>
-  </ItemGroup>
 </Project>
