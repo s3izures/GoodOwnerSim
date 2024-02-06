@@ -5,6 +5,7 @@
 #include <time.h>
 using namespace std;
 
+#pragma region BASIC_FUNCTIONS
 void WallBreaker::Main()
 {
 	InitWindow(screenSize.x, screenSize.y, "Wallbreaker");
@@ -182,7 +183,9 @@ void WallBreaker::Update()
 	EvalCurFrame();
 	DrawCurFrame();
 }
+#pragma endregion
 
+#pragma region SETUP
 void WallBreaker::LoadAudio()
 {
 	Sound launchSFX = LoadSound("Resources\\beepa.wav");
@@ -243,7 +246,9 @@ void WallBreaker::GenerateLevel()
 		}
 	}
 }
+#pragma endregion
 
+#pragma region ASSET_CREATION
 void WallBreaker::MakeBricks()
 {
 	//A sprinkle of more random
@@ -315,7 +320,9 @@ void WallBreaker::MakeBall()
 	ball.radius = 10;
 	ball.color = DARKBLUE; //Default
 }
+#pragma endregion
 
+#pragma region COLLISION
 void WallBreaker::CollisionPaddle()
 {
 	if (CheckCollisionCircleRec(ball.position, ball.radius, player.getRect()))
@@ -456,3 +463,4 @@ int WallBreaker::CollisionWithHitBox(Brick brick)
 		}
 	}
 }
+#pragma endregion
