@@ -64,7 +64,6 @@ public:
 		bottom,
 		left,
 		right,
-		end
 	};
 
 	//Player + Ball
@@ -91,12 +90,13 @@ public:
 		Vector2 position;
 		Vector2 prevPosition;
 		Vector2 speed;
+		Color color;
 		int radius;
 		bool active = false;
 
 		void Draw()
 		{
-			DrawCircle(position.x, position.y, radius, DARKBLUE);
+			DrawCircle(position.x, position.y, radius, color);
 		}
 	} Ball;
 
@@ -108,6 +108,7 @@ public:
 	typedef struct Pickup {
 		Vector2 position;
 		Vector2 speed;
+		int power;
 		int radius;
 		Color color;
 
@@ -117,7 +118,16 @@ public:
 		}
 	} PickUp;
 
-	vector<Pickup> pickups;
+	enum Powers
+	{
+		extraLife, //GREEN
+		ballFast, //RED +r
+		ballSlow, //BLUE +b
+		ballBoom, //BLACK =black
+	};
+
+	//0: which brick is it in, 1: what kind of power it is
+	vector<Pickup> pickups[2];
 
 
 

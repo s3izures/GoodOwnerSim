@@ -114,6 +114,19 @@ void WallBreaker::EvalCurFrame()
 		}
 	}
 
+	//Sound be quiet shh
+	if (IsKeyPressed(KEY_M))
+	{
+		if (IsSoundPlaying(soundEffects[6]))
+		{
+			StopSound(soundEffects[6]);
+		}
+		else
+		{
+			PlaySound(soundEffects[6]);
+		}
+	}
+
 	ball.prevPosition = ball.position;
 }
 
@@ -203,8 +216,8 @@ void WallBreaker::Restart()
 
 void WallBreaker::GenerateLevel()
 {
-	int rows = rand() % 8 + 3;
-	int cols = rand() % 10 + 5;
+	int rows = rand() % 5 + 3;
+	int cols = rand() % 5 + 5;
 	int colorStyle = rand() % 2;
 	brickRows = rows;
 	brickCols = cols;
@@ -295,6 +308,7 @@ void WallBreaker::MakeBall()
 	ball.position = Vector2{ player.position.x,player.position.y - 30 };
 	ball.speed = Vector2{ 0,-5 };
 	ball.radius = 10;
+	ball.color = DARKBLUE; //Default
 }
 
 void WallBreaker::CollisionPaddle()
