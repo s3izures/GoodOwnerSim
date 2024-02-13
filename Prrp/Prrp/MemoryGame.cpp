@@ -1,5 +1,5 @@
 #include "MemoryGame.h"
-
+#include <iostream>
 void MemoryGame::Main()
 {
 	Start();
@@ -33,7 +33,7 @@ void MemoryGame::Start()
 		{
 			float x = gap + (gap + tileSize) * col;
 			float y = gap + (gap + tileSize) * row;
-			Rectangle rect = Rectangle{ x,y,tileSize };
+			Rectangle rect = Rectangle{ x,y,tileSize, tileSize };
 
 			int randId = rand() % numbers.size();
 			int num = numbers[randId];
@@ -52,12 +52,53 @@ void MemoryGame::Update()
 }
 void MemoryGame::EvalFrame()
 {
+	canClick = true;
 
+	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && canClick)
+	{
+		Vector2 mousePoint = GetMousePosition();
+
+		for (int i = 0; i < tiles.size(); i++)
+		{
+			if (CheckCollisionPointRec(mousePoint, tiles[i].rect))
+			{
+				if (tiles[i].state == hidden)
+				{
+					tiles[i].state = revealed;
+					Tile* til = &tiles[i];
+					matching.push_back(til);
+
+					//remember time
+					timeOfClick = GetTime();
+				}
+			}
+		}
+	}
+
+	if (GetTime() > timeOfClick + 1)
+	{
+		if (matching.size() == 2)
+		{
+			if (matching[0]->num == matching[1]->num)
+			{
+				matching[0]->state = found;
+				matching[1]->state = found;
+			}
+			else
+			{
+				matching[0]->state = hidden;
+				matching[1]->state = hidden;
+			}
+			matching.clear();
+		}
+	}
 }
 void MemoryGame::DrawFrame()
 {
 	for (Tile i : tiles)
 	{
+		i.DetState();
 		i.Draw();
+		i.DrawNum();
 	}
 }
