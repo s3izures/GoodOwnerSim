@@ -8,7 +8,7 @@ class SnakeGame
 public:
 	void Main();
 
-protected:
+private:
 #define tileSize 20
 
 	bool gameOver = false;
@@ -22,7 +22,7 @@ protected:
 	void EvalFrame();
 	void DrawFrame();
 
-	typedef struct Head {
+	typedef struct Snek {
 		Vector2 pos;
 		Vector2 size = Vector2{ tileSize,tileSize };
 		Color col;
@@ -32,7 +32,7 @@ protected:
 		}
 	}Head;
 
-	std::vector<Head>player;
+	std::vector<Snek>player;
 	Vector2 speed = Vector2{ tileSize,0 };
 
 	typedef struct PickUp {
@@ -56,8 +56,10 @@ protected:
 	Pickup pickup;
 
 	void Interaction();
-	void Boundaries();
+	void CheckBounds();
 	void DrawGrid();
 	void InitHeadTail();
-	void InitPickup();
+	void PickupFunc();
+	void GameOver();
+	void CheatMode();
 };
