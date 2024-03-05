@@ -28,6 +28,7 @@ void GOS::Update()
 	DrawFrame();
 
 	//use GetTime() for timers
+	//use GetFrameTime() for animations?
 }
 
 void GOS::EvalFrame()
