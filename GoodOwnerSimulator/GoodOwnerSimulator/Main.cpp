@@ -2,5 +2,6 @@
 
 int main()
 {
-
+	GOS g;
+	g.Main();
 }
