@@ -3,7 +3,7 @@
 
 void FlappyBird::Main()
 {
-	InitWindow(screen.x, screen.y, "Flappy Bird Bootleg");
+	InitWindow(screenX, screenY, "Flappy Bird Bootleg");
 	SetTargetFPS(60);
 
 	Start();
@@ -21,7 +21,7 @@ void FlappyBird::Main()
 
 void FlappyBird::Start()
 {
-	//Init Pipes
+	InitPipes();
 
 	//Object Pooling : active or inactive
 }
@@ -39,10 +39,18 @@ void FlappyBird::EvalFrame()
 
 void FlappyBird::DrawFrame()
 {
-	
+	for (Pipe p : pipes)
+	{
+		p.Draw();
+	}
 }
 
 void FlappyBird::InitPipes()
 {
-
+	for (int i = 0; i < 5; i++)
+	{
+		float x = 300 + gap * i;
+		Pipe p = Pipe(x);
+		pipes.push_back(p);
+	}
 }
