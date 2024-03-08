@@ -1,2 +1,2 @@
-# Flappy Bird
-A recreation of Flappy Bird intended for classroom purposes.
+# Good Owner Simulator
+A super fun and relaxing pet simulator (not).
