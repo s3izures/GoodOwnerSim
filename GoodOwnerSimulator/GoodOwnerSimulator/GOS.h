@@ -20,7 +20,7 @@ private:
 	bool gameOver = false;
 	Color backgroundCol = LIGHTGRAY;
 
-	bool petBusy = false;
+	bool petBusy = false; //Bool array sum is 1, active can only be 1
 	float stareTimer;
 	float playTimer;
 	float pettingTimer;

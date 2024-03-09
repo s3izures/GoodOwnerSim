@@ -87,7 +87,7 @@ void GOS::DrawFrame()
 void GOS::PetInteraction()
 {
 	//Play
-	if (!petBusy && IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
 		Vector2 mousePoint = GetMousePosition();
 		pet.LookAt(mousePoint);
