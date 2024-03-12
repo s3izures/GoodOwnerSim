@@ -17,34 +17,34 @@ private:
 
 	static const int screenY = 500;
 	static const int screenX = 800;
+	int maxStat = 10;
 	bool gameOver = false;
-	Color backgroundCol = LIGHTGRAY;
+	Color backgroundCol = RAYWHITE;
 
-	bool petBusy = false; //Bool array sum is 1, active can only be 1
+	//bool petBusy = false; //Bool array sum is 1, active can only be 1
+	bool petAction[3] = { false, false, false };
+	bool petFree = true;
+
+	float timer = 0; //general use
 	float stareTimer;
 	float playTimer;
 	float pettingTimer;
+
+	float decay = 0;
+	float energyRegen = 0;
+
+	bool played = false;
 	bool canPet = true;
 	bool canPlay = true;
 	bool isMoving = false;
 
+	bool BoundaryCheck();
 	void PetInteraction();
 	int PetCheck();
 
-	enum Mood {
-		Default,
-		Happy,
-		Sad,
-		Hungry,
-		Tired
-	};
-
-	enum Expression {
-		Neutral,
-		ClosedDown,
-		ClosedUp,
-		Squint,
-	};
+	enum Action { Playing, Petting, Eating };
+	enum Mood { Default, Happy, Energetic, Sad, Hungry, Tired, Curious, Angry };
+	enum Expression { Neutral, ClosedDown, ClosedUp, Squint, };
 
 #pragma region Objects
 
@@ -84,10 +84,10 @@ private:
 		{
 			mood = Default;
 			emote = Neutral;
-			fullness = 10;
-			energy = 10;
-			play = 10;
-			love = 10;
+			fullness = 5;
+			energy = 5;
+			play = 5;
+			love = 5;
 
 			position = Vector2{ screenX / 2,screenY / 2 };
 
@@ -152,6 +152,9 @@ private:
 			case Happy:
 				eyeColor = PINK;
 				break;
+			case Energetic:
+				eyeColor = GREEN;
+				break;
 			case Sad:
 				eyeColor = DARKBLUE;
 				break;
@@ -160,6 +163,12 @@ private:
 				break;
 			case Tired:
 				eyeColor = GRAY;
+				break;
+			case Curious:
+				eyeColor = ORANGE;
+				break;
+			case Angry:
+				eyeColor = RED;
 				break;
 			default:
 				eyeColor = BLACK;
@@ -277,17 +286,28 @@ private:
 				rightEye.y--;
 			}
 		}
-		void Move(Vector2 pos) //if false, end
+		void Move(Vector2 pos)
 		{
+			//EDIT THE BOUNDARY INTO ANOTHER FUNCTION
+
 			//Move TOWARDS pos
-			if (position.x < pos.x && position.x + bodySize <= screenX)
+			if (position.x < pos.x)
+				position.x += speed.x;
+			if (position.x > pos.x)
+				position.x -= speed.x;
+			if (position.y < pos.y)
+				position.y += speed.y;
+			if (position.y > pos.y)
+				position.y -= speed.y;
+
+			/*if (position.x < pos.x && position.x + bodySize <= screenX)
 				position.x += speed.x;
 			if (position.x > pos.x && position.x - bodySize >= 0)
 				position.x -= speed.x;
 			if (position.y < pos.y && position.y + bodySize <= screenY)
 				position.y += speed.y;
 			if (position.y > pos.y && position.y - bodySize >= 0)
-				position.y -= speed.y;
+				position.y -= speed.y;*/
 
 			body.x = position.x - bodySize / 2;
 			body.y = position.y - bodySize / 2;
@@ -339,12 +359,5 @@ private:
 	Pet pet;
 
 #pragma endregion
-
-	//feed pet, pickup box when mouse pressed on rect, shake food into bowl, pet approaches 10 seconds after last shake frame
-	//wash pet, pickup sponge when mouse pressed on rect, rub pet or dirty spots (lower opacity on enter) maybe hitbox smaller than square?
-	//pet pet, rub pet
-	//bar decay, pet slowly gets dirty
-	//buttons UI
-	//pet wander state
 };
 
