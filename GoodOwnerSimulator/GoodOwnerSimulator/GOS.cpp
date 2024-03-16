@@ -5,9 +5,17 @@
 void GOS::Main()
 {
 	InitWindow(screenX, screenY, "");
+	InitAudioDevice();
 	SetTargetFPS(60);
 
 	Start();
+
+	//Audio load
+	ding = LoadSound("Audio\\ding.wav");
+	squeak[0] = LoadSound("Audio\\squeak1.wav");
+	squeak[1] = LoadSound("Audio\\squeak2.wav");
+	squeak[2] = LoadSound("Audio\\squeak3.wav");
+	squeak[3] = LoadSound("Audio\\squeak4.wav");
 
 	while (!WindowShouldClose())
 	{
@@ -19,6 +27,7 @@ void GOS::Main()
 		EndDrawing();
 	}
 
+	UnloadSound(ding);
 	CloseWindow();
 }
 
@@ -36,8 +45,6 @@ void GOS::Start()
 
 	//Background reset
 	backgroundCol = Color{ 204, 198, 190, 255 };
-
-	//Load Music
 }
 
 void GOS::Update()
@@ -74,81 +81,82 @@ void GOS::DrawFrame()
 {
 	if (!gameOver)
 	{
-		pet.Draw();
 		if (food.active)
 		{
 			food.Draw();
 		}
 
-		//BARS
-		DrawText("Fullness", 10, 10, 14, BLACK);
-		DrawText("Energy", 10, 30, 14, BLACK);
-		DrawText("Fun", 10, 50, 14, BLACK);
-		DrawText("Love", 10, 70, 14, BLACK);
+		pet.Draw();
 
-		float longestText = MeasureText("Fullness", 14) + 10;
-		float gap = 5;
-		float barSize = 10;
-		float barX = longestText + gap;
-		float barY = 10; //origin
-
-		for (int i = 0; i < maxStat; i++)
-		{
-			if (i <= pet.fullness)
-				DrawRectangle(barX + barSize * i, 10, barSize, barSize, RED);
-			else
-				DrawRectangle(barX + barSize * i, 10, barSize, barSize, Color{ 230, 41, 55, 100 });
-
-			if (i <= pet.energy)
-				DrawRectangle(barX + barSize * i, 30, barSize, barSize, BLUE);
-			else
-				DrawRectangle(barX + barSize * i, 30, barSize, barSize, Color{ 0, 121, 241, 100 });
-			
-			if (i <= pet.play)
-				DrawRectangle(barX + barSize * i, 50, barSize, barSize, GREEN);
-			else
-				DrawRectangle(barX + barSize * i, 50, barSize, barSize, Color{ 0, 228, 48, 100 });
-
-			if (i <= pet.love)
-				DrawRectangle(barX + barSize * i, 70, barSize, barSize, PINK);
-			else
-				DrawRectangle(barX + barSize * i, 70, barSize, barSize, Color{ 255, 109, 194, 100 });
-		}
+		DrawStat();
+		
 	}
 	else
 	{
-		backgroundCol = BLACK;
-		int fontSize = 50;
-		int fontSizeSub = 20;
-
-		SetWindowTitle("YOU'RE A BAD OWNER.");
-
-		//TEXT
-		const char* gameover= "GAME OVER";
-		DrawText(gameover,
-			screenX / 2 - MeasureText(gameover, fontSize) / 2,
-			screenY / 2 - fontSize,
-			fontSize,
-			WHITE);
-
-		const char* subtitle = "Press ENTER to restart.";
-		DrawText(subtitle,
-			screenX / 2 - MeasureText(subtitle, fontSizeSub) / 2,
-			screenY / 2 + fontSize / 2,
-			fontSizeSub,
-			RED);
-
-		if (IsKeyPressed(KEY_ENTER))
-		{
-			gameOver = false;
-			Start();
-		}
+		GameOver();
 	}
 }
 
 #pragma endregion
 
 #pragma region Additional Fucntions
+
+void GOS::DrawStat()
+{
+	DrawText("Fullness", 10, 10, 14, BLACK);
+	DrawText("Energy", 10, 30, 14, BLACK);
+	DrawText("Fun", 10, 50, 14, BLACK);
+	DrawText("Love", 10, 70, 14, BLACK);
+
+	float longestText = MeasureText("Fullness", 14) + 10;
+	float gap = 5;
+	float barSize = 10;
+	float barX = longestText + gap;
+	float barY = 10; //origin
+
+	for (int i = 0; i < maxStat; i++)
+	{
+		if (i <= pet.fullness)
+		{
+			if (pet.fullness >= maxStat)
+				DrawRectangle(barX + barSize * i, 10, barSize, barSize, overfillStat);
+			else
+				DrawRectangle(barX + barSize * i, 10, barSize, barSize, RED);
+		}
+		else
+			DrawRectangle(barX + barSize * i, 10, barSize, barSize, Color{ 230, 41, 55, 100 });
+
+		if (i <= pet.energy)
+		{
+			if (pet.energy >= maxStat)
+				DrawRectangle(barX + barSize * i, 30, barSize, barSize, overfillStat);
+			else
+				DrawRectangle(barX + barSize * i, 30, barSize, barSize, BLUE);
+		}
+		else
+			DrawRectangle(barX + barSize * i, 30, barSize, barSize, Color{ 0, 121, 241, 100 });
+
+		if (i <= pet.play)
+		{
+			if (pet.play >= maxStat)
+				DrawRectangle(barX + barSize * i, 50, barSize, barSize, overfillStat);
+			else
+				DrawRectangle(barX + barSize * i, 50, barSize, barSize, GREEN);
+		}
+		else
+			DrawRectangle(barX + barSize * i, 50, barSize, barSize, Color{ 0, 228, 48, 100 });
+
+		if (i <= pet.love)
+		{
+			if (pet.love >= maxStat)
+				DrawRectangle(barX + barSize * i, 70, barSize, barSize, overfillStat);
+			else
+				DrawRectangle(barX + barSize * i, 70, barSize, barSize, PINK);
+		}
+		else
+			DrawRectangle(barX + barSize * i, 70, barSize, barSize, Color{ 255, 109, 194, 100 });
+	}
+}
 
 void GOS::PetMove(Vector2 pos)
 {
@@ -167,6 +175,8 @@ void GOS::PetMove(Vector2 pos)
 
 void GOS::PetInteraction()
 {
+
+	//IMPORTANT!
 	if (petFree || petAction[Playing])
 	{
 		if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
@@ -190,13 +200,14 @@ void GOS::PetInteraction()
 				PetMove(mousePoint);
 				playTimer += GetFrameTime();
 
-				if (playTimer >= 3 && canPlay)
+				if (playTimer >= 3)
 				{
 					//Stats
+					PlaySound(ding);
 					pet.play++;
 					pet.energy--;
 
-					canPlay = false;
+					playTimer = 0;
 					played = true;
 				}
 				else
@@ -214,6 +225,9 @@ void GOS::PetInteraction()
 
 			if (timer <= 3 && played)
 			{
+				if (played)
+					PlaySound(squeak[GetRandomValue(0, 2)]);
+				played = false;
 				pet.emote = ClosedUp;
 				pet.mood = Energetic;
 			}
@@ -226,8 +240,6 @@ void GOS::PetInteraction()
 
 				petAction[Playing] = false;
 				petFree = true;
-				played = false;
-				canPlay = true;
 			}
 
 			stareTimer = 0;
@@ -238,6 +250,11 @@ void GOS::PetInteraction()
 	{
 		if (CheckCollisionPointRec(GetMousePosition(), pet.body))
 		{
+			if (petFree || IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+			{
+				PlaySound(squeak[GetRandomValue(0, 2)]);
+			}
+
 			petAction[Petting] = true;
 			petFree = false;
 
@@ -256,6 +273,7 @@ void GOS::PetInteraction()
 
 			if (pettingTimer >= 4 && canPet)
 			{
+				PlaySound(ding);
 				pet.love++;
 				canPet = false;
 			}
@@ -280,7 +298,10 @@ void GOS::PetInteraction()
 			petFree = false;
 			food.active = true;
 
-			food.GenerateFood(); //Move within food.active if statement and you get party mode
+			do
+			{
+				food.GenerateFood(); //Move within food.active if statement and you get party mode
+			} while (CheckCollisionRecs(food.rec, pet.body));
 		}
 
 		if (food.active)
@@ -288,6 +309,7 @@ void GOS::PetInteraction()
 			if (CheckCollisionRecs(food.rec, pet.body))
 			{
 				//After eating food
+				PlaySound(ding);
 				pet.fullness++;
 				food.active = false;
 
@@ -320,6 +342,29 @@ void GOS::PetInteraction()
 			}
 		}
 	}
+
+	//Details
+	if (petFree)
+	{
+		if (CheckCollisionPointRec(GetMousePosition(), pet.leftEar) || CheckCollisionPointRec(GetMousePosition(), pet.rightEar))
+		{
+			pet.emote = Squint;
+			pet.LookAt(GetMousePosition());
+
+			if (timer >= 5)
+			{
+				timer = 0;
+				PlaySound(squeak[3]);
+				pet.ResetEyes();
+				pet.love--;
+				pet.mood = Angry;
+			}
+			else
+			{
+				timer += GetFrameTime();
+			}
+		}
+	}
 	
 }
 
@@ -330,17 +375,17 @@ int GOS::PetCheck()
 		gameOver = true;
 		return 1; //died of hunger
 	}
-	if (pet.energy < 0)
+	else if (pet.energy < 0)
 	{
 		gameOver = true;
 		return 2; //died of exhaustion
 	}
-	if (pet.play < 0)
+	else if (pet.play < 0)
 	{
 		gameOver = true;
 		return 3; //died of boredom
 	}
-	if (pet.love < 0)
+	else if (pet.love < 0)
 	{
 		gameOver = true;
 		return 4; //died of sadness
@@ -368,6 +413,63 @@ int GOS::PetCheck()
 	}
 
 	return 0; //Alive
+}
+
+void GOS::GameOver()
+{
+	backgroundCol = BLACK;
+	int fontSize = 50;
+	int fontSizeSub = 20;
+
+	SetWindowTitle("YOU'RE A BAD OWNER.");
+
+	//TEXT
+	const char* gameover = "GAME OVER";
+	DrawText(gameover,
+		screenX / 2 - MeasureText(gameover, fontSize) / 2,
+		screenY / 2 - fontSize,
+		fontSize,
+		WHITE);
+
+	const char* deathMsg;
+
+	switch (PetCheck())
+	{
+	case 1:
+		deathMsg = "Your pet starved to death.";
+		break;
+	case 2:
+		deathMsg = "Your pet died of exhaustion.";
+		break;
+	case 3:
+		deathMsg = "Your pet was so bored it blew up.";
+		break;
+	case 4:
+		deathMsg = "You didn't love them enough.";
+		break;
+	default:
+		deathMsg = "Pet died.";
+		break;
+	}
+
+	DrawText(deathMsg,
+		screenX / 2 - MeasureText(deathMsg, fontSizeSub) / 2,
+		screenY / 2 + fontSize / 2,
+		fontSizeSub,
+		GRAY);
+
+	const char* subtitle = "Press ENTER to restart.";
+	DrawText(subtitle,
+		screenX / 2 - MeasureText(subtitle, fontSizeSub) / 2,
+		screenY / 2 + fontSize,
+		fontSizeSub,
+		RED);
+
+	if (IsKeyPressed(KEY_ENTER))
+	{
+		gameOver = false;
+		Start();
+	}
 }
 
 #pragma endregion

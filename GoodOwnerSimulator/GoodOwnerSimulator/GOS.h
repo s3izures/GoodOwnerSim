@@ -18,8 +18,13 @@ private:
 	static const int screenY = 500;
 	static const int screenX = 800;
 	int maxStat = 10;
+	Color overfillStat = Color{ 245, 197, 66 ,255 };
 	bool gameOver = false;
+
 	Color backgroundCol = Color{ 204, 198, 190, 255 };
+
+	Sound ding;
+	Sound squeak[4];
 
 	bool petAction[3] = { false, false, false };
 	bool petFree = true;
@@ -28,7 +33,6 @@ private:
 	float stareTimer;
 	float playTimer;
 	float pettingTimer;
-
 	float decay = 0;
 	float energyRegen = 0;
 
@@ -37,9 +41,11 @@ private:
 	bool canPlay = true;
 	bool isMoving = false;
 
+	void DrawStat();
 	void PetMove(Vector2 pos);
 	void PetInteraction();
 	int PetCheck();
+	void GameOver();
 
 	enum Action { Playing, Petting, Eating };
 	enum Mood { Default, Happy, Energetic, Sad, Hungry, Tired, Curious, Angry };
