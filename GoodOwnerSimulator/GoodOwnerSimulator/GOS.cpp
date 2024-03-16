@@ -16,6 +16,8 @@ void GOS::Main()
 	squeak[1] = LoadSound("Audio\\squeak2.wav");
 	squeak[2] = LoadSound("Audio\\squeak3.wav");
 	squeak[3] = LoadSound("Audio\\squeak4.wav");
+	gameBGM = LoadSound("Audio\\mus_temvillage.ogg");
+	gameOverBGM = LoadSound("Audio\\mus_gameover.ogg");
 
 	while (!WindowShouldClose())
 	{
@@ -28,6 +30,10 @@ void GOS::Main()
 	}
 
 	UnloadSound(ding);
+	UnloadSound(squeak[0]);
+	UnloadSound(squeak[1]);
+	UnloadSound(squeak[2]);
+	UnloadSound(squeak[3]);
 	CloseWindow();
 }
 
@@ -55,11 +61,22 @@ void GOS::Update()
 
 void GOS::EvalFrame()
 {
+	if (!gameOver && !IsSoundPlaying(gameBGM))
+	{
+		StopSound(gameOverBGM);
+		PlaySound(gameBGM);
+	}
+	else if (gameOver && !IsSoundPlaying(gameOverBGM))
+	{
+		StopSound(gameBGM);
+		PlaySound(gameOverBGM);
+	}
+
 	PetCheck();
 	PetInteraction();
 
 	decay += GetFrameTime();
-	
+
 	if (!petAction[Playing])
 		energyRegen += GetFrameTime();
 
@@ -85,11 +102,8 @@ void GOS::DrawFrame()
 		{
 			food.Draw();
 		}
-
 		pet.Draw();
-
 		DrawStat();
-		
 	}
 	else
 	{

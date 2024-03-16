@@ -25,6 +25,8 @@ private:
 
 	Sound ding;
 	Sound squeak[4];
+	Sound gameBGM;
+	Sound gameOverBGM;
 
 	bool petAction[3] = { false, false, false };
 	bool petFree = true;
@@ -38,7 +40,6 @@ private:
 
 	bool played = false;
 	bool canPet = true;
-	bool canPlay = true;
 	bool isMoving = false;
 
 	void DrawStat();
