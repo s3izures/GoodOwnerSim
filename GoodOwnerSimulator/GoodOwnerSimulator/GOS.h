@@ -19,9 +19,8 @@ private:
 	static const int screenX = 800;
 	int maxStat = 10;
 	bool gameOver = false;
-	Color backgroundCol = RAYWHITE;
+	Color backgroundCol = Color{ 204, 198, 190, 255 };
 
-	//bool petBusy = false; //Bool array sum is 1, active can only be 1
 	bool petAction[3] = { false, false, false };
 	bool petFree = true;
 
@@ -38,7 +37,7 @@ private:
 	bool canPlay = true;
 	bool isMoving = false;
 
-	bool BoundaryCheck();
+	void PetMove(Vector2 pos);
 	void PetInteraction();
 	int PetCheck();
 
@@ -288,27 +287,6 @@ private:
 		}
 		void Move(Vector2 pos)
 		{
-			//EDIT THE BOUNDARY INTO ANOTHER FUNCTION
-
-			//Move TOWARDS pos
-			if (position.x < pos.x)
-				position.x += speed.x;
-			if (position.x > pos.x)
-				position.x -= speed.x;
-			if (position.y < pos.y)
-				position.y += speed.y;
-			if (position.y > pos.y)
-				position.y -= speed.y;
-
-			/*if (position.x < pos.x && position.x + bodySize <= screenX)
-				position.x += speed.x;
-			if (position.x > pos.x && position.x - bodySize >= 0)
-				position.x -= speed.x;
-			if (position.y < pos.y && position.y + bodySize <= screenY)
-				position.y += speed.y;
-			if (position.y > pos.y && position.y - bodySize >= 0)
-				position.y -= speed.y;*/
-
 			body.x = position.x - bodySize / 2;
 			body.y = position.y - bodySize / 2;
 
@@ -355,8 +333,28 @@ private:
 		}
 
 	}Pet;
-
 	Pet pet;
+
+	typedef struct Food {
+		Vector2 position;
+		float size = 10;
+		Color color = BROWN;
+		bool active = false;
+		Rectangle rec;
+
+		void GenerateFood() 
+		{
+			position.x = GetRandomValue(0 + size + 50, screenX - size - 50);
+			position.y = GetRandomValue(0 + size + 50, screenY - size - 50);
+
+			rec = Rectangle{ position.x, position.y, size, size };
+		}
+		void Draw()
+		{
+			DrawRectangleRec(rec, color);
+		}
+	}Food;
+	Food food;
 
 #pragma endregion
 };

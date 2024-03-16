@@ -35,7 +35,9 @@ void GOS::Start()
 	pettingTimer = 0;
 
 	//Background reset
-	backgroundCol = RAYWHITE;
+	backgroundCol = Color{ 204, 198, 190, 255 };
+
+	//Load Music
 }
 
 void GOS::Update()
@@ -49,17 +51,16 @@ void GOS::EvalFrame()
 	PetCheck();
 	PetInteraction();
 
-	cout << decay << endl;
 	decay += GetFrameTime();
 	
 	if (!petAction[Playing])
 		energyRegen += GetFrameTime();
 
-	if (energyRegen >= 10)
+	if (energyRegen >= 10 && !petAction[Eating])
 	{
-		energyRegen = 0;
 		pet.energy++;
 		pet.fullness--;
+		energyRegen = 0;
 	}
 	if (decay >= 30)
 	{
@@ -74,6 +75,10 @@ void GOS::DrawFrame()
 	if (!gameOver)
 	{
 		pet.Draw();
+		if (food.active)
+		{
+			food.Draw();
+		}
 
 		//BARS
 		DrawText("Fullness", 10, 10, 14, BLACK);
@@ -145,9 +150,19 @@ void GOS::DrawFrame()
 
 #pragma region Additional Fucntions
 
-bool GOS::BoundaryCheck()
+void GOS::PetMove(Vector2 pos)
 {
-	return false;
+	//Move TOWARDS pos
+	if (pet.position.x < pos.x && pet.position.x + pet.bodySize / 2 <= screenX)
+		pet.position.x += pet.speed.x;
+	if (pet.position.x > pos.x && pet.position.x - pet.bodySize / 2 >= 0)
+		pet.position.x -= pet.speed.x;
+	if (pet.position.y < pos.y && pet.position.y + pet.bodySize / 2 <= screenY)
+		pet.position.y += pet.speed.y;
+	if (pet.position.y > pos.y && pet.position.y - pet.earSize.x >= 0)
+		pet.position.y -= pet.speed.y;
+
+	pet.Move(pos);
 }
 
 void GOS::PetInteraction()
@@ -170,12 +185,12 @@ void GOS::PetInteraction()
 			if (stareTimer >= 2)
 				pet.mood = Curious;
 
-			if (stareTimer >= 4)
+			if (stareTimer >= 3)
 			{
-				pet.Move(mousePoint);
+				PetMove(mousePoint);
 				playTimer += GetFrameTime();
 
-				if (playTimer >= 5 && canPlay)
+				if (playTimer >= 3 && canPlay)
 				{
 					//Stats
 					pet.play++;
@@ -256,9 +271,54 @@ void GOS::PetInteraction()
 			canPet = true;
 		}
 	}
-	else if (petFree || petAction[Eating])
+	if (petFree || petAction[Eating])
 	{
-		//WIP
+		//Spawn food
+		if (IsKeyPressed(KEY_E))
+		{
+			petAction[Eating] = true;
+			petFree = false;
+			food.active = true;
+
+			food.GenerateFood(); //Move within food.active if statement and you get party mode
+		}
+
+		if (food.active)
+		{
+			if (CheckCollisionRecs(food.rec, pet.body))
+			{
+				//After eating food
+				pet.fullness++;
+				food.active = false;
+
+				pet.ResetEyes();
+			}
+			else
+			{
+				pet.LookAt(food.position);
+				PetMove(food.position);
+			}
+		}
+
+		if (!food.active && petAction[Eating])
+		{
+			if (timer <= 3)
+			{
+				timer += GetFrameTime();
+				pet.emote = ClosedUp;
+				pet.mood = Happy;
+			}
+			else
+			{
+				timer = 0;
+
+				pet.emote = Neutral;
+				pet.mood = Default;
+
+				petAction[Eating] = false;
+				petFree = true;
+			}
+		}
 	}
 	
 }
